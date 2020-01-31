@@ -66,7 +66,7 @@ def dfs(graph):
         if x == dim - 1 and y == dim - 1:
             return path
         else:
-            # Generate a list of all possible points from the current point (x,y)
+            # Generate a list of all possible neighboring points from the current point (x,y)
             points = [(x, y-1), (x,y+1), (x-1, y), (x+1, y)]
             for (i,j) in points:
                 path = point[2].copy()
@@ -82,12 +82,112 @@ def dfs(graph):
 # Generates a path from the source cell (0,0) to goal cell (dim - 1, dim - 1) using
 # A* where the heuristic is the euclidean distance
 def aStarWithEuclidean(graph):
-    return None
+    dim = len(graph)
+    source_cell = (0,0)
+    goal_cell = (dim-1, dim-1)
+
+    # Create a visited array of same dimensions as the graph which will make sure
+    # that A* considers only cells that have not been visited which will reduce 
+    # the maximum fringe size.
+    visited = [[False for p in range(dim)] for k in range(dim)]
+
+    # Create a min-heap/priority queue to use for A*
+    heap = []
+    heapq.heapify(heap)
+
+    # Start by appending the euclidean distance from the source cell to the goal cell
+    # with the source cell and the current path.
+    # This heap will automatically use the first value in the tuple to sort the items.
+    heapq.heappush(heap, (euclideanH(source_cell, goal_cell), source_cell, [source_cell]))
+
+    while len(heap) != 0:
+        item = heapq.heappop(heap)
+        point = item[1]
+        x = point[0]
+        y = point[1]
+        path = item[2].copy()
+        visited[x][y] = True
+
+        # If we have reached the goal cell, we can return the path associated with
+        # that cell.
+        if x == dim - 1 and y == dim - 1:
+            return path
+        else:
+            # Generate a list of all possible neighboring points from the current point (x,y)
+            points = [(x, y-1), (x,y+1), (x-1, y), (x+1, y)]
+            for (i,j) in points:
+                path = item[2].copy()
+                # Only append points on the stack if the points are within the bounds
+                # of the graph, the point is a 0, and the point has not been visited
+                if checkPoint(i, j, dim) and graph[i][j] == 0 and visited[i][j] == False:
+                    # Distance between the source cell and (i,j) will be the length of the path
+                    # before adding (i,j) to the path
+                    realDistance = len(path)
+
+                    # Add the point (i,j) to the current path
+                    path.append((i,j))
+
+                    # When adding the point (i,j) to the heap, we must use the actual distance between
+                    # source cell and (i,j) + the euclidean distance between (i,j) to the 
+                    # goal cell.
+                    heapq.heappush(heap, (realDistance + euclideanH((i,j), goal_cell), (i,j), path))
+                    
+    # If there is no path from source cell to goal cell than return the string below
+    return "Failure: No Path"
 
 # Generates a path from the source cell (0,0) to goal cell (dim - 1, dim - 1) using
 # A* where the heuristic is the manhattan distance
 def aStarWithManhattan(graph):
-    return None
+    dim = len(graph)
+    source_cell = (0,0)
+    goal_cell = (dim-1, dim-1)
+
+    # Create a visited array of same dimensions as the graph which will make sure
+    # that A* considers only cells that have not been visited which will reduce 
+    # the maximum fringe size.
+    visited = [[False for p in range(dim)] for k in range(dim)]
+
+    # Create a min-heap/priority queue to use for A*
+    heap = []
+    heapq.heapify(heap)
+
+    # Start by appending the manhattan distance from the source cell to the goal cell
+    # with the source cell and the current path.
+    # This heap will automatically use the first value in the tuple to sort the items.
+    heapq.heappush(heap, (manhattanH(source_cell, goal_cell), source_cell, [source_cell]))
+
+    while len(heap) != 0:
+        item = heapq.heappop(heap)
+        point = item[1]
+        x = point[0]
+        y = point[1]
+        path = item[2].copy()
+        visited[x][y] = True
+
+        # If we have reached the goal cell, we can return the path associated with
+        # that cell.
+        if x == dim - 1 and y == dim - 1:
+            return path
+        else:
+            # Generate a list of all possible neighboring points from the current point (x,y)
+            points = [(x, y-1), (x,y+1), (x-1, y), (x+1, y)]
+            for (i,j) in points:
+                path = item[2].copy()
+                if checkPoint(i, j, dim) and graph[i][j] == 0 and visited[i][j] == False:
+                    # Distance between the source cell and (i,j) will be the length of the path
+                    # before adding (i,j) to the path
+                    realDistance = len(path)
+
+                    # Add the point (i,j) to the current path
+                    path.append((i,j))
+
+                    # When adding the point (i,j) to the heap, we must use the actual distance between
+                    # source cell and (i,j) + the manhattan distance between (i,j) to the 
+                    # goal cell.
+                    heapq.heappush(heap, (realDistance + manhattanH((i,j), goal_cell), (i,j), path))
+                    
+    # If there is no path from source cell to goal cell than return the string below
+    return "Failure: No Path"
 
 # Generates the euclidean distance between two points.
 # Will be used for the aStarWithEuclidean function
@@ -102,3 +202,27 @@ def manhattanH(p1, p2):
     x1, y1 = p1
     x2, y2 = p2
     return abs(x1 - x2) + abs(y1 - y2)
+
+# Helper function that takes in a list of points as a path and a graph.
+# Prints out the graph with the points taken shown as "-"
+def visualizer(path, graph):
+    if path == "Failure: No Path":
+        return 0
+    p = set(path)
+    for i in range(len(graph)):
+        for j in range(len(graph)):
+            if (i,j) in p:
+                print("-", end=" ")
+            else:
+                print(graph[i][j], end=" ")
+        print("")
+
+# Example graph generation with dimension and probability
+g = generateMap(15, 0.4)
+
+# Path is returned using the graph g
+# The function can be replaced with aStarWithEuclidean, dfs, and aStarWithManhattan
+path = aStarWithManhattan(g)
+
+# Easy way to see the path taken by the algorithm used above
+visualizer(path, g)
