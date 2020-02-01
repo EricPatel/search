@@ -16,6 +16,7 @@ def dfs(graph):
     # Create a visited array of same dimensions as the graph to ensure that DFS
     # does not run forever.
     visited = [[False for p in range(dim)] for k in range(dim)]
+
     # Start by appending the source cell with the current path
     # The first element in the list is the x-value, second value is the 
     # y-value, and third value is a list of tuples which represents the
@@ -175,7 +176,7 @@ def manhattanH(p1, p2):
 # Prints out the graph with the points taken shown as "-"
 def visualizer(path, graph):
     if path == "Failure: No Path":
-        return 0
+        print("No Valid Path")
     p = set(path)
     for i in range(len(graph)):
         for j in range(len(graph)):
@@ -184,13 +185,3 @@ def visualizer(path, graph):
             else:
                 print(graph[i][j], end=" ")
         print("")
-
-# Example graph generation with dimension and probability
-g = generateMap(15, 0.4)
-
-# Path is returned using the graph g
-# The function can be replaced with aStarWithEuclidean, dfs, and aStarWithManhattan
-path = aStarWithManhattan(g)
-
-# Easy way to see the path taken by the algorithm used above
-visualizer(path, g)
