@@ -1,4 +1,5 @@
 import heapq
+import math
 
 # Helper function to check if a certain point is between 0 and the graphs dimensions
 def checkPoint(x, y, dim):
@@ -185,3 +186,4 @@ def visualizer(path, graph):
             else:
                 print(graph[i][j], end=" ")
         print("")
+

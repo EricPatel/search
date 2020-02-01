@@ -1,5 +1,4 @@
 import random
-import math
 
 # Generates a map given a dimension and a probability that a cell is blocked
 # 1 --> Cell is Blocked, 0 --> Cell is Open
