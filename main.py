@@ -10,7 +10,7 @@ def main():
     path = search.aStarWithManhattan(g)
 
     # Easy way to see the path taken by the algorithm used above
-    search.visualizer(path, g)
+    map.printPath(path, g)
 
 if __name__ == "__main__":
     main()

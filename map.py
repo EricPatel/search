@@ -29,3 +29,17 @@ def printMap(graph):
         for j in range(len(graph)):
             print(graph[i][j], end=" ")
         print("")
+
+# Helper function that takes in a list of points as a path and a graph.
+# Prints out the graph with the points taken shown as "-"
+def printPath(path, graph):
+    if path == "Failure: No Path":
+        print("No Valid Path")
+    p = set(path)
+    for i in range(len(graph)):
+        for j in range(len(graph)):
+            if (i,j) in p:
+                print("-", end=" ")
+            else:
+                print(graph[i][j], end=" ")
+        print("")

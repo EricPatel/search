@@ -173,17 +173,3 @@ def manhattanH(p1, p2):
     x2, y2 = p2
     return abs(x1 - x2) + abs(y1 - y2)
 
-# Helper function that takes in a list of points as a path and a graph.
-# Prints out the graph with the points taken shown as "-"
-def visualizer(path, graph):
-    if path == "Failure: No Path":
-        print("No Valid Path")
-    p = set(path)
-    for i in range(len(graph)):
-        for j in range(len(graph)):
-            if (i,j) in p:
-                print("-", end=" ")
-            else:
-                print(graph[i][j], end=" ")
-        print("")
-
