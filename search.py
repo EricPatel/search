@@ -1,6 +1,6 @@
 import heapq
 import math
-from queue import Queue
+from collections import deque
 
 # Helper function to check if a certain point is between 0 and the graphs dimensions
 def checkPoint(x, y, dim):
@@ -54,20 +54,20 @@ def dfs(graph):
 def bfs(graph):
     #creates a queue the size of the board so we have enough space
     dim = len(graph)
-    queue = Queue(maxsize=(dim**2))
+    queue = deque()
 
     # Create a visited array of same dimensions as the graph to ensure that BFS
-    # does not run forever.
+    # will minimize the fringe size
     visited = [[False for p in range(dim)] for k in range(dim)]
 
     #enqueue the starting position and mark it as visited
-    queue.put([0,0,[(0,0)]])
+    queue.append([0,0,[(0,0)]])
     visited[0][0] = True
 
     #keep looping while there are elements in the queue
-    while not queue.empty():
+    while len(queue) != 0:
         #get the first item on the queue
-        point = queue.get()
+        point = queue.popleft()
         x = point[0]
         y = point[1]
         path = point[2].copy()
@@ -89,7 +89,7 @@ def bfs(graph):
             # of the graph, the point is a 0, and the point has not been visited
             if checkPoint(i, j, dim) and graph[i][j] == 0 and visited[i][j] == False:
                 path.append(neighbor)
-                queue.put([i, j, path])
+                queue.append([i, j, path])
                 visited[i][j] = True
     
     # If there is no path from source cell to goal cell than return the string below
