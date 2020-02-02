@@ -50,9 +50,9 @@ def dfs(graph):
     # If there is no path from source cell to goal cell than return the string below
     return "Failure: No Path"
 
-
+# Generates a path from the source cell (0,0) to goal cell (dim - 1, dim - 1) using 
+# Breadth-First Search. 
 def bfs(graph):
-    #creates a queue the size of the board so we have enough space
     dim = len(graph)
     queue = deque()
 
@@ -60,13 +60,13 @@ def bfs(graph):
     # will minimize the fringe size
     visited = [[False for p in range(dim)] for k in range(dim)]
 
-    #enqueue the starting position and mark it as visited
+    # Enqueue the starting position and mark it as visited
     queue.append([0,0,[(0,0)]])
     visited[0][0] = True
 
-    #keep looping while there are elements in the queue
+    # Keep looping while there are elements in the queue
     while len(queue) != 0:
-        #get the first item on the queue
+        # Get the first item on the queue
         point = queue.popleft()
         x = point[0]
         y = point[1]
