@@ -11,6 +11,7 @@ def main():
     path2 = search.aStarWithEuclidean(g)
     dfsPath = search.dfs(g)
     bfsPath = search.bfs(g)
+    biBFSPath = search.bidirectionalBfs(g)
     # Easy way to see the path taken by the algorithm used above
     map.printPath(path, g)
     print("")
@@ -19,6 +20,8 @@ def main():
     map.printPath(dfsPath, g)
     print("")
     map.printPath(bfsPath, g)
+    print("")
+    map.printPath(biBFSPath, g)
 
 if __name__ == "__main__":
     main()
