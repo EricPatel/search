@@ -95,15 +95,20 @@ def bfs(graph):
     # If there is no path from source cell to goal cell than return the string below
     return "Failure: No Path"
 
+# Generates a path from the source cell (0,0) to goal cell (dim - 1, dim - 1) using 
+# bidirectional Breadth-First Search. 
 def bidirectionalBfs(graph):
     dim = len(graph)
-    #queue from the starting point
+    # Queue from the starting point
     sQueue = deque()
-    #queue from the finishing point
+    # Queue from the finishing point
     fQueue = deque()
 
-    # Create a visited array of same dimensions as the graph to ensure that BFS
-    # will minimize the fringe size
+    # Create a visited array of the same dimensions as the graph to find the 
+    # intersection of the two BFSs where:
+    # 0  --> Not visited by both BFSs
+    # 1  --> Visited by starting point queue
+    # -1 --> Visited by finishing point queue 
     visited = [[0 for p in range(dim)] for k in range(dim)]
 
     # Enqueue the starting position and mark it as visited
@@ -128,8 +133,9 @@ def bidirectionalBfs(graph):
             i = neighbor[0]
             j = neighbor[1]
 
-            # If we have reached the goal cell, we can return the path associated with
-            # that cell.
+            # If we have reached a cell that has been visited by the finishing point 
+            # queue (-1), than we have found an intersection and we can return the path
+            # associated with that cell.
             if checkPoint(i, j, dim) and visited[i][j] == -1:
                 while len(fQueue) != 0:
                     currPoint = fQueue.popleft()
@@ -157,8 +163,9 @@ def bidirectionalBfs(graph):
             i = neighbor[0]
             j = neighbor[1]
 
-            # If we have reached the goal cell, we can return the path associated with
-            # that cell.
+            # If we have reached a cell that has been visited by the starting point 
+            # queue (1), than we have found an intersection and we can return the path
+            # associated with that cell.
             if checkPoint(i, j, dim) and visited[i][j] == 1:
                 while len(sQueue) != 0:
                     currPoint = sQueue.popleft()
@@ -176,11 +183,6 @@ def bidirectionalBfs(graph):
 
     # If there is no path from source cell to goal cell than return the string below
     return "Failure: No Path"
-
-def pathJoin(sPath, fPath):
-    print(sPath)
-    print(fPath.reverse())
-    return sPath + fPath.reverse()
     
 # Generates a path from the source cell (0,0) to goal cell (dim - 1, dim - 1) using
 # A* where the heuristic is the euclidean distance
