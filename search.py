@@ -1,7 +1,6 @@
 import heapq
 import math
 from collections import deque
-from timeit import default_timer as timer
 from HeapNode import HeapNode
 
 # Generates a path from the source cell (0,0) to goal cell (dim - 1, dim - 1) using 
@@ -11,6 +10,10 @@ def dfs(graph):
     stack = []
     dim = len(graph)
 
+    # Dictionary where the key is the cell and the value is the 
+    # cell that was previous. This is used to generate the actual path. 
+    prevMap = {}
+
     # Create a visited array of same dimensions as the graph to ensure that DFS
     # does not run forever.
     visited = [[False for p in range(dim)] for k in range(dim)]
@@ -19,29 +22,29 @@ def dfs(graph):
     # The first element in the list is the x-value, second value is the 
     # y-value, and third value is a list of tuples which represents the
     # path DFS took to that cell.
-    stack.append([0,0,[(0,0)]])
+    stack.append([0,0,(None)])
+    visited[0][0] = True
 
     while len(stack) != 0:
         point = stack.pop()
         x = point[0]
         y = point[1]
-        path = point[2].copy()
-        visited[x][y] = True
+        prevMap[(x, y)] = point[2]
+        #print(point[2])
         
         # If we have reached the goal cell, we can return the path associated with
         # that cell. 
         if x == dim - 1 and y == dim - 1:
-            return path
+            return getPath(prevMap, (dim - 1, dim - 1))
         else:
             # Generate a list of all possible neighboring points from the current point (x,y)
             points = [(x, y-1), (x,y+1), (x-1, y), (x+1, y)]
             for (i,j) in points:
-                path = point[2].copy()
                 # Only append points on the stack if the points are within the bounds
                 # of the graph, the point is a 0, and the point has not been visited
                 if checkPoint(i, j, dim) and graph[i][j] == 0 and visited[i][j] == False:
-                    path.append((i,j))
-                    stack.append([i, j, path])
+                    visited[i][j] = True
+                    stack.append([i, j, (x, y)])
 
     # If there is no path from source cell to goal cell than return the string below
     return "Failure: No Path"
@@ -207,13 +210,14 @@ def aStarWithEuclidean(graph):
     first_node = HeapNode(euclideanH(source_cell, goal_cell), source_cell, None, 0)
     heapq.heappush(heap, first_node)
 
+    visited[0][0] = True
+
     while len(heap) != 0:
-        item = heapq.heappop(heap)
-        point = item.cell
+        node = heapq.heappop(heap)
+        point = node.cell
         x = point[0]
         y = point[1]
-        prevMap[point] = item.prev
-        visited[x][y] = True
+        prevMap[point] = node.prev
 
         # If we have reached the goal cell, we can return the path associated with
         # that cell.
@@ -224,15 +228,22 @@ def aStarWithEuclidean(graph):
             points = [(x, y-1), (x,y+1), (x-1, y), (x+1, y)]
             for (i,j) in points:
                 # Only append points on the heap if the points are within the bounds
-                # of the graph, the point is a 0, and the point has not been visited.
+                # of the graph, the point is a 0, and the point has not been visited
                 if checkPoint(i, j, dim) and graph[i][j] == 0 and visited[i][j] == False:
-                    
+                    visited[i][j] = True
+
                     # Add the distance from the source for the current point + the euclidean
                     # distance from the neighbor to the goal cell + 1 which is equal to the
                     # the estimated distance from the source to the goal cell. 
+
+                    # The distance from the source to the current point (i,j)
+                    neighborPointDist = node.distFromSource + 1
+                    neighborPointHeuristic = euclideanH((i,j), goal_cell)
+                    totalDistanceToGoal = neighborPointDist + neighborPointHeuristic
+
                     # Add the current node, the previous node, and add one to the distance
                     # from the source. 
-                    neighbor = HeapNode(item.distFromSource + euclideanH((i,j), goal_cell) + 1, (i,j), point, item.distFromSource + 1)
+                    neighbor = HeapNode(totalDistanceToGoal, (i,j), point, neighborPointDist)
                     heapq.heappush(heap, neighbor)
                     
     # If there is no path from source cell to goal cell than return the string below
@@ -264,6 +275,7 @@ def aStarWithManhattan(graph):
     # because of the __lt__ method in our HeapNode class.
     first_node = HeapNode(manhattanH(source_cell, goal_cell), source_cell, None, 0)
     heapq.heappush(heap, first_node)
+    visited[0][0] = True
 
     while len(heap) != 0:
         node = heapq.heappop(heap)
@@ -271,7 +283,6 @@ def aStarWithManhattan(graph):
         x = point[0]
         y = point[1]
         prevMap[point] = node.prev
-        visited[x][y] = True
 
         # If we have reached the goal cell, we can return the path associated with
         # that cell.
@@ -284,7 +295,7 @@ def aStarWithManhattan(graph):
                 # Only append points on the heap if the points are within the bounds
                 # of the graph, the point is a 0, and the point has not been visited
                 if checkPoint(i, j, dim) and graph[i][j] == 0 and visited[i][j] == False:
-                    
+                    visited[i][j] = True
                     # Add the distance from the source for the current point + the manhattan
                     # distance from the neighbor to the goal cell + 1 which is equal to the
                     # the estimated distance from the source to the goal cell. 
@@ -296,7 +307,6 @@ def aStarWithManhattan(graph):
 
                     # Add the current node, the previous node, and add one to the distance
                     # from the source. 
-                    print((i,j), totalDistanceToGoal)
                     neighbor = HeapNode(totalDistanceToGoal, (i,j), point, neighborPointDist)
                     heapq.heappush(heap, neighbor)
                     
