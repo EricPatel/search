@@ -1,12 +1,8 @@
 import heapq
 import math
 from collections import deque
-
-# Helper function to check if a certain point is between 0 and the graphs dimensions
-def checkPoint(x, y, dim):
-    if x >= 0 and x < dim and y >= 0 and y < dim:
-        return True
-    return False
+from timeit import default_timer as timer
+from HeapNode import HeapNode
 
 # Generates a path from the source cell (0,0) to goal cell (dim - 1, dim - 1) using 
 # Depth-First Search. 
@@ -190,10 +186,14 @@ def aStarWithEuclidean(graph):
     dim = len(graph)
     source_cell = (0,0)
     goal_cell = (dim-1, dim-1)
+    
+    # Dictionary where the key is the cell and the value is the 
+    # cell that was previous. This is used to generate the actual path. 
+    prevMap = {}
 
     # Create a visited array of same dimensions as the graph which will make sure
     # that A* considers only cells that have not been visited which will reduce 
-    # the maximum fringe size.
+    # the maximum fringe size and prevent cycles.
     visited = [[False for p in range(dim)] for k in range(dim)]
 
     # Create a min-heap/priority queue to use for A*
@@ -202,40 +202,38 @@ def aStarWithEuclidean(graph):
 
     # Start by appending the euclidean distance from the source cell to the goal cell
     # with the source cell and the current path.
-    # This heap will automatically use the first value in the tuple to sort the items.
-    heapq.heappush(heap, (euclideanH(source_cell, goal_cell), source_cell, [source_cell]))
+    # This heap will automatically use the first value in the tuple to sort the items
+    # because of the __lt__ method in our HeapNode class.
+    first_node = HeapNode(euclideanH(source_cell, goal_cell), source_cell, None, 0)
+    heapq.heappush(heap, first_node)
 
     while len(heap) != 0:
         item = heapq.heappop(heap)
-        point = item[1]
+        point = item.cell
         x = point[0]
         y = point[1]
-        path = item[2].copy()
+        prevMap[point] = item.prev
         visited[x][y] = True
 
         # If we have reached the goal cell, we can return the path associated with
         # that cell.
         if x == dim - 1 and y == dim - 1:
-            return path
+            return getPath(prevMap, goal_cell)
         else:
             # Generate a list of all possible neighboring points from the current point (x,y)
             points = [(x, y-1), (x,y+1), (x-1, y), (x+1, y)]
             for (i,j) in points:
-                path = item[2].copy()
-                # Only append points on the stack if the points are within the bounds
-                # of the graph, the point is a 0, and the point has not been visited
+                # Only append points on the heap if the points are within the bounds
+                # of the graph, the point is a 0, and the point has not been visited.
                 if checkPoint(i, j, dim) and graph[i][j] == 0 and visited[i][j] == False:
-                    # Distance between the source cell and (i,j) will be the length of the path
-                    # before adding (i,j) to the path
-                    realDistance = len(path)
-
-                    # Add the point (i,j) to the current path
-                    path.append((i,j))
-
-                    # When adding the point (i,j) to the heap, we must use the actual distance between
-                    # source cell and (i,j) + the euclidean distance between (i,j) to the 
-                    # goal cell.
-                    heapq.heappush(heap, (realDistance + euclideanH((i,j), goal_cell), (i,j), path))
+                    
+                    # Add the distance from the source for the current point + the euclidean
+                    # distance from the neighbor to the goal cell + 1 which is equal to the
+                    # the estimated distance from the source to the goal cell. 
+                    # Add the current node, the previous node, and add one to the distance
+                    # from the source. 
+                    neighbor = HeapNode(item.distFromSource + euclideanH((i,j), goal_cell) + 1, (i,j), point, item.distFromSource + 1)
+                    heapq.heappush(heap, neighbor)
                     
     # If there is no path from source cell to goal cell than return the string below
     return "Failure: No Path"
@@ -246,10 +244,14 @@ def aStarWithManhattan(graph):
     dim = len(graph)
     source_cell = (0,0)
     goal_cell = (dim-1, dim-1)
+    
+    # Dictionary where the key is the cell and the value is the 
+    # cell that was previous. This is used to generate the actual path. 
+    prevMap = {}
 
     # Create a visited array of same dimensions as the graph which will make sure
     # that A* considers only cells that have not been visited which will reduce 
-    # the maximum fringe size.
+    # the maximum fringe size and prevent cycles.
     visited = [[False for p in range(dim)] for k in range(dim)]
 
     # Create a min-heap/priority queue to use for A*
@@ -258,38 +260,45 @@ def aStarWithManhattan(graph):
 
     # Start by appending the manhattan distance from the source cell to the goal cell
     # with the source cell and the current path.
-    # This heap will automatically use the first value in the tuple to sort the items.
-    heapq.heappush(heap, (manhattanH(source_cell, goal_cell), source_cell, [source_cell]))
+    # This heap will automatically use the first value in the tuple to sort the items
+    # because of the __lt__ method in our HeapNode class.
+    first_node = HeapNode(manhattanH(source_cell, goal_cell), source_cell, None, 0)
+    heapq.heappush(heap, first_node)
 
     while len(heap) != 0:
-        item = heapq.heappop(heap)
-        point = item[1]
+        node = heapq.heappop(heap)
+        point = node.cell
         x = point[0]
         y = point[1]
-        path = item[2].copy()
+        prevMap[point] = node.prev
         visited[x][y] = True
 
         # If we have reached the goal cell, we can return the path associated with
         # that cell.
         if x == dim - 1 and y == dim - 1:
-            return path
+            return getPath(prevMap, goal_cell)
         else:
             # Generate a list of all possible neighboring points from the current point (x,y)
             points = [(x, y-1), (x,y+1), (x-1, y), (x+1, y)]
             for (i,j) in points:
-                path = item[2].copy()
+                # Only append points on the heap if the points are within the bounds
+                # of the graph, the point is a 0, and the point has not been visited
                 if checkPoint(i, j, dim) and graph[i][j] == 0 and visited[i][j] == False:
-                    # Distance between the source cell and (i,j) will be the length of the path
-                    # before adding (i,j) to the path
-                    realDistance = len(path)
+                    
+                    # Add the distance from the source for the current point + the manhattan
+                    # distance from the neighbor to the goal cell + 1 which is equal to the
+                    # the estimated distance from the source to the goal cell. 
 
-                    # Add the point (i,j) to the current path
-                    path.append((i,j))
+                    # The distance from the source to the current point (i,j)
+                    neighborPointDist = node.distFromSource + 1
+                    neighborPointHeuristic = manhattanH((i,j), goal_cell)
+                    totalDistanceToGoal = neighborPointDist + neighborPointHeuristic
 
-                    # When adding the point (i,j) to the heap, we must use the actual distance between
-                    # source cell and (i,j) + the manhattan distance between (i,j) to the 
-                    # goal cell.
-                    heapq.heappush(heap, (realDistance + manhattanH((i,j), goal_cell), (i,j), path))
+                    # Add the current node, the previous node, and add one to the distance
+                    # from the source. 
+                    print((i,j), totalDistanceToGoal)
+                    neighbor = HeapNode(totalDistanceToGoal, (i,j), point, neighborPointDist)
+                    heapq.heappush(heap, neighbor)
                     
     # If there is no path from source cell to goal cell than return the string below
     return "Failure: No Path"
@@ -308,3 +317,19 @@ def manhattanH(p1, p2):
     x2, y2 = p2
     return abs(x1 - x2) + abs(y1 - y2)
 
+def getPath(prevMap, goal_cell):
+    path = []
+    p = goal_cell
+
+    while p != None:
+        path.append(p)
+        p = prevMap[p]
+
+    path.reverse()
+    return path
+
+# Helper function to check if a certain point is between 0 and the graphs dimensions
+def checkPoint(x, y, dim):
+    if x >= 0 and x < dim and y >= 0 and y < dim:
+        return True
+    return False
