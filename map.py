@@ -43,3 +43,12 @@ def printPath(path, graph):
             else:
                 print(graph[i][j], end=" ")
         print("")
+
+def printVisited(visited, graph, nullValue):
+    for i in range(len(visited)):
+        for j in range(len(visited)):
+            if visited[i][j] == nullValue:
+                print(graph[i][j], end=" ")
+            else:
+                print("-", end=" ")
+        print("")

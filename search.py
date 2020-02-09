@@ -1,6 +1,7 @@
-import sys
+import sys 
 import heapq
 import math
+import map
 from collections import deque
 from HeapNode import HeapNode
 
@@ -10,6 +11,11 @@ def dfs(graph):
     # Create a stack to use for DFS
     stack = []
     dim = len(graph)
+    goal_cell = (dim - 1, dim - 1)
+
+    # Dictionary where the key is the cell and the value is the 
+    # cell that was previous. This is used to generate the actual path. 
+    prevMap = {}
 
     # Dictionary where the key is the cell and the value is the 
     # cell that was previous. This is used to generate the actual path. 
@@ -35,6 +41,7 @@ def dfs(graph):
         # If we have reached the goal cell, we can return the path associated with
         # that cell. 
         if x == dim - 1 and y == dim - 1:
+            map.printVisited(visited, graph, 0)
             return getPath(prevMap, (dim - 1, dim - 1))
         else:
             # Generate a list of all possible neighboring points from the current point (x,y)
@@ -82,6 +89,7 @@ def bfs(graph):
             # that cell.
             if (i == dim - 1) and (j ==  dim - 1):
                 path.append(neighbor)
+                map.printVisited(visited, graph, 0)
                 return path
 
             # Only append points on the stack if the points are within the bounds
@@ -141,6 +149,7 @@ def bidirectionalBfs(graph):
                     currFX = currPoint[0]
                     currFY = currPoint[1]
                     if(i == currFX and j == currFY):
+                        map.printVisited(visited, graph, 0)
                         return path + currPoint[2][::-1]
 
             # Only append points on the stack if the points are within the bounds
@@ -171,6 +180,7 @@ def bidirectionalBfs(graph):
                     currSX = currPoint[0]
                     currSY = currPoint[1]
                     if(i == currSX and j == currSY):
+                        map.printVisited(visited, graph, 0)
                         return path + currPoint[2][::-1]
 
             # Only append points on the stack if the points are within the bounds
@@ -184,8 +194,8 @@ def bidirectionalBfs(graph):
     return "Failure: No Path"
     
 # Generates a path from the source cell (0,0) to goal cell (dim - 1, dim - 1) using
-# A* where the heuristic is the manhattan distance
-def aStar(graph, heuristic):
+# A* where heuristicMethod can be euclideanH or manhattanH
+def aStar(graph, heuristicMethod):
     dim = len(graph)
     source_cell = (0,0)
     goal_cell = (dim-1, dim-1)
@@ -196,72 +206,76 @@ def aStar(graph, heuristic):
 
     # Create a visited array of same dimensions as the graph which will make sure
     # that A* considers only cells that have not been visited which will reduce 
-    # the maximum fringe size and prevent cycles.
+    # the maximum fringe size and prevent cycles. Every position is initialized
+    # to the maximum integer to make sure the correct path is found. 
     visited = [[sys.maxsize for p in range(dim)] for k in range(dim)]
 
     # Create a min-heap/priority queue to use for A*
     heap = []
     heapq.heapify(heap)
 
-    # Start by appending the manhattan distance from the source cell to the goal cell
-    # with the source cell and the current path.
+    # Start by appending the estimated distance from the source cell to the goal cell,
+    # the source cell, the previous cell, and the distance from the source.
     # This heap will automatically use the first value in the tuple to sort the items
     # because of the __lt__ method in our HeapNode class.
-    first_node = HeapNode(heuristic(source_cell, goal_cell), source_cell, None, 0)
+    first_node = HeapNode(heuristicMethod(source_cell, goal_cell), source_cell, None, 0)
+    
     prevMap[(0,0)] = None
     heapq.heappush(heap, first_node)
-
-    visited[0][0] = manhattanH(source_cell, goal_cell)
+    visited[0][0] = heuristicMethod(source_cell, goal_cell)
 
     while len(heap) != 0:
         node = heapq.heappop(heap)
         point = node.cell
         x = point[0]
         y = point[1]
+        prevMap[point] = node.prev
 
         # If we have reached the goal cell, we can return the path associated with
         # that cell.
         if x == dim - 1 and y == dim - 1:
+            map.printVisited(visited, graph, sys.maxsize)
             return getPath(prevMap, goal_cell)
         else:
             # Generate a list of all possible neighboring points from the current point (x,y)
             points = [(x, y-1), (x,y+1), (x-1, y), (x+1, y)]
             for (i,j) in points:
-                # Add the distance from the source for the current point + the manhattan
-                # distance from the neighbor to the goal cell + 1 which is equal to the
-                # the estimated distance from the source to the goal cell. 
-
                 # The distance from the source to the current point (i,j)
-                neighborPointDist = node.distFromSource + 1
-                neighborPointHeuristic = heuristic((i,j), goal_cell)
-                totalDistanceToGoal = neighborPointDist + neighborPointHeuristic
+                neighborToSource = node.distFromSource + 1
+
+                # The estimated distance from the neighbor to the goal cell
+                neighborPointHeuristic = heuristicMethod((i,j), goal_cell)
+
+                totalDistanceToGoal = neighborToSource + neighborPointHeuristic
+
                 # Only append points on the heap if the points are within the bounds
-                # of the graph, the point is a 0, and the point has not been visited
+                # of the graph, the point is a 0, and the point has a smaller total distance
+                # than visited[i][j].
                 if checkPoint(i, j, dim) and graph[i][j] == 0 and visited[i][j] > totalDistanceToGoal:
                     visited[i][j] = totalDistanceToGoal
                     prevMap[(i,j)] = point
-                    # Add the current node, the previous node, and add one to the distance
-                    # from the source. 
-                    neighbor = HeapNode(totalDistanceToGoal, (i,j), point, neighborPointDist)
+                    neighbor = HeapNode(totalDistanceToGoal, (i,j), point, neighborToSource)
                     heapq.heappush(heap, neighbor)
                     
     # If there is no path from source cell to goal cell than return the string below
     return "Failure: No Path"
 
 # Generates the euclidean distance between two points.
-# Will be used for the aStarWithEuclidean function
+# Will be passed as the heuristicMethod for the aStar function
 def euclideanH(p1, p2):
     x1, y1 = p1
     x2, y2 = p2
     return math.sqrt((x1-x2)**2 + (y1-y2)**2)
 
 # Generates the manhattan distance between two points.
-# Will be used for the aStarWithManhattan function
+# Will be passed as the heuristicMethod for the aStar function
 def manhattanH(p1, p2):
     x1, y1 = p1
     x2, y2 = p2
     return abs(x1 - x2) + abs(y1 - y2)
 
+# Generates the path from a map where the key a is node and the value 
+# is the previous node
 def getPath(prevMap, goal_cell):
     path = []
     p = goal_cell
