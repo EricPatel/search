@@ -184,74 +184,8 @@ def bidirectionalBfs(graph):
     return "Failure: No Path"
     
 # Generates a path from the source cell (0,0) to goal cell (dim - 1, dim - 1) using
-# A* where the heuristic is the euclidean distance
-def aStarWithEuclidean(graph):
-    dim = len(graph)
-    source_cell = (0,0)
-    goal_cell = (dim-1, dim-1)
-    
-    # Dictionary where the key is the cell and the value is the 
-    # cell that was previous. This is used to generate the actual path. 
-    prevMap = {}
-
-    # Create a visited array of same dimensions as the graph which will make sure
-    # that A* considers only cells that have not been visited which will reduce 
-    # the maximum fringe size and prevent cycles.
-    visited = [[False for p in range(dim)] for k in range(dim)]
-
-    # Create a min-heap/priority queue to use for A*
-    heap = []
-    heapq.heapify(heap)
-
-    # Start by appending the euclidean distance from the source cell to the goal cell
-    # with the source cell and the current path.
-    # This heap will automatically use the first value in the tuple to sort the items
-    # because of the __lt__ method in our HeapNode class.
-    first_node = HeapNode(euclideanH(source_cell, goal_cell), source_cell, None, 0)
-    heapq.heappush(heap, first_node)
-
-    visited[0][0] = True
-
-    while len(heap) != 0:
-        node = heapq.heappop(heap)
-        point = node.cell
-        x = point[0]
-        y = point[1]
-        prevMap[point] = node.prev
-
-        # If we have reached the goal cell, we can return the path associated with
-        # that cell.
-        if x == dim - 1 and y == dim - 1:
-            return getPath(prevMap, goal_cell)
-        else:
-            # Generate a list of all possible neighboring points from the current point (x,y)
-            points = [(x, y-1), (x,y+1), (x-1, y), (x+1, y)]
-            for (i,j) in points:
-                # Only append points on the heap if the points are within the bounds
-                # of the graph, the point is a 0, and the point has not been visited
-                if checkPoint(i, j, dim) and graph[i][j] == 0 and visited[i][j] == False:
-                    visited[i][j] = True
-
-                    # Add the distance from the source for the current point + the euclidean
-                    # distance from the neighbor to the goal cell + 1 which is equal to the
-                    # the estimated distance from the source to the goal cell. 
-
-                    # The distance from the source to the current point (i,j)
-                    neighborPointDist = node.distFromSource + 1
-                    neighborPointHeuristic = euclideanH((i,j), goal_cell)
-                    totalDistanceToGoal = neighborPointDist + neighborPointHeuristic
-
-                    # Add the current node, the previous node, and add one to the distance
-                    # from the source. 
-                    neighbor = HeapNode(totalDistanceToGoal, (i,j), point, neighborPointDist)
-                    heapq.heappush(heap, neighbor)
-                    
-    # If there is no path from source cell to goal cell than return the string below
-    return "Failure: No Path"
-
-# Generates a path from the source cell (0,0) to goal cell (dim - 1, dim - 1) using
 # A* where the heuristic is the manhattan distance
-def aStarWithManhattan(graph):
+def aStar(graph, heuristic):
     dim = len(graph)
     source_cell = (0,0)
     goal_cell = (dim-1, dim-1)
@@ -273,11 +207,12 @@ def aStarWithManhattan(graph):
     # with the source cell and the current path.
     # This heap will automatically use the first value in the tuple to sort the items
     # because of the __lt__ method in our HeapNode class.
-    first_node = HeapNode(manhattanH(source_cell, goal_cell), source_cell, None, 0)
+    first_node = HeapNode(heuristic(source_cell, goal_cell), source_cell, None, 0)
     prevMap[(0,0)] = None
     heapq.heappush(heap, first_node)
 
     visited[0][0] = manhattanH(source_cell, goal_cell)
+
     while len(heap) != 0:
         node = heapq.heappop(heap)
         point = node.cell
@@ -298,7 +233,7 @@ def aStarWithManhattan(graph):
 
                 # The distance from the source to the current point (i,j)
                 neighborPointDist = node.distFromSource + 1
-                neighborPointHeuristic = manhattanH((i,j), goal_cell)
+                neighborPointHeuristic = heuristic((i,j), goal_cell)
                 totalDistanceToGoal = neighborPointDist + neighborPointHeuristic
                 # Only append points on the heap if the points are within the bounds
                 # of the graph, the point is a 0, and the point has not been visited
