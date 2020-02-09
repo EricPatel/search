@@ -1,6 +1,6 @@
+import sys
 import heapq
 import math
-import sys
 from collections import deque
 from HeapNode import HeapNode
 
@@ -217,7 +217,8 @@ def aStarWithEuclidean(graph):
         point = node.cell
         x = point[0]
         y = point[1]
-        
+        prevMap[point] = node.prev
+
         # If we have reached the goal cell, we can return the path associated with
         # that cell.
         if x == dim - 1 and y == dim - 1:
@@ -275,15 +276,13 @@ def aStarWithManhattan(graph):
     first_node = HeapNode(manhattanH(source_cell, goal_cell), source_cell, None, 0)
     prevMap[(0,0)] = None
     heapq.heappush(heap, first_node)
-    visited[0][0] = True
 
+    visited[0][0] = manhattanH(source_cell, goal_cell)
     while len(heap) != 0:
         node = heapq.heappop(heap)
         point = node.cell
         x = point[0]
         y = point[1]
-        prevMap[point] = node.prev
-        print(point)
 
         # If we have reached the goal cell, we can return the path associated with
         # that cell.
@@ -293,7 +292,11 @@ def aStarWithManhattan(graph):
             # Generate a list of all possible neighboring points from the current point (x,y)
             points = [(x, y-1), (x,y+1), (x-1, y), (x+1, y)]
             for (i,j) in points:
+                # Add the distance from the source for the current point + the manhattan
+                # distance from the neighbor to the goal cell + 1 which is equal to the
+                # the estimated distance from the source to the goal cell. 
 
+                # The distance from the source to the current point (i,j)
                 neighborPointDist = node.distFromSource + 1
                 neighborPointHeuristic = manhattanH((i,j), goal_cell)
                 totalDistanceToGoal = neighborPointDist + neighborPointHeuristic
@@ -301,12 +304,7 @@ def aStarWithManhattan(graph):
                 # of the graph, the point is a 0, and the point has not been visited
                 if checkPoint(i, j, dim) and graph[i][j] == 0 and visited[i][j] > totalDistanceToGoal:
                     visited[i][j] = totalDistanceToGoal
-                    # Add the distance from the source for the current point + the manhattan
-                    # distance from the neighbor to the goal cell + 1 which is equal to the
-                    # the estimated distance from the source to the goal cell. 
-                    # The distance from the source to the current point (i,j)
                     prevMap[(i,j)] = point
-                    print("{},{} : {}".format(i,j,totalDistanceToGoal))
                     # Add the current node, the previous node, and add one to the distance
                     # from the source. 
                     neighbor = HeapNode(totalDistanceToGoal, (i,j), point, neighborPointDist)
