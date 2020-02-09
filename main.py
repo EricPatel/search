@@ -1,27 +1,17 @@
 import map
-import search
+from search import euclideanH, manhattanH, aStar, bfs, bidirectionalBfs, dfs
 
 def main():
     # Example graph generation with dimension and probability
-    g = map.generateMap(10, 0.3)
+    g = map.generateMap(150, 0.2)
+    path = aStar(g, euclideanH)
+    bfsPath = bfs(g)
 
-    # Path is returned using the graph g
-    # The function can be replaced with aStarWithEuclidean, dfs, and aStarWithManhattan
-    path = search.aStarWithManhattan(g)
-    path2 = search.aStarWithEuclidean(g)
-    dfsPath = search.dfs(g)
-    bfsPath = search.bfs(g)
-    biBFSPath = search.bidirectionalBfs(g)
-    # Easy way to see the path taken by the algorithm used above
     map.printPath(path, g)
-    print("")
-    map.printPath(path2, g)
-    print("")
-    map.printPath(dfsPath, g)
-    print("")
+    print(" ")
     map.printPath(bfsPath, g)
-    print("")
-    map.printPath(biBFSPath, g)
+    print(" ")
+    print(len(path), len(bfsPath))
 
 if __name__ == "__main__":
     main()
