@@ -4,10 +4,12 @@ import math
 import map
 from collections import deque
 from HeapNode import HeapNode
+from timeit import default_timer as time
 
 # Generates a path from the source cell (0,0) to goal cell (dim - 1, dim - 1) using 
 # Depth-First Search. 
 def dfs(graph):
+    start = time()
     # Create a stack to use for DFS
     stack = []
     dim = len(graph)
@@ -41,8 +43,9 @@ def dfs(graph):
         # If we have reached the goal cell, we can return the path associated with
         # that cell. 
         if x == dim - 1 and y == dim - 1:
-            map.printVisited(visited, graph, 0)
-            return getPath(prevMap, (dim - 1, dim - 1))
+            end = time()
+            nodes = map.printVisited(visited, graph, 0)
+            return getPath(prevMap, (dim - 1, dim - 1)), nodes, end - start
         else:
             # Generate a list of all possible neighboring points from the current point (x,y)
             points = [(x, y-1), (x,y+1), (x-1, y), (x+1, y)]
@@ -59,6 +62,7 @@ def dfs(graph):
 # Generates a path from the source cell (0,0) to goal cell (dim - 1, dim - 1) using 
 # Breadth-First Search. 
 def bfs(graph):
+    start = time()
     dim = len(graph)
     queue = deque()
 
@@ -89,8 +93,9 @@ def bfs(graph):
             # that cell.
             if (i == dim - 1) and (j ==  dim - 1):
                 path.append(neighbor)
-                map.printVisited(visited, graph, 0)
-                return path
+                end = time()
+                nodes = map.printVisited(visited, graph, 0)
+                return path, nodes, end - start
 
             # Only append points on the stack if the points are within the bounds
             # of the graph, the point is a 0, and the point has not been visited
@@ -105,6 +110,7 @@ def bfs(graph):
 # Generates a path from the source cell (0,0) to goal cell (dim - 1, dim - 1) using 
 # bidirectional Breadth-First Search. 
 def bidirectionalBfs(graph):
+    start = time()
     dim = len(graph)
     # Queue from the starting point
     sQueue = deque()
@@ -149,8 +155,9 @@ def bidirectionalBfs(graph):
                     currFX = currPoint[0]
                     currFY = currPoint[1]
                     if(i == currFX and j == currFY):
-                        map.printVisited(visited, graph, 0)
-                        return path + currPoint[2][::-1]
+                        end = time()
+                        nodes = map.printVisited(visited, graph, 0)
+                        return path + currPoint[2][::-1], nodes, end - start
 
             # Only append points on the stack if the points are within the bounds
             # of the graph, the point is a 0, and the point has not been visited
@@ -180,8 +187,9 @@ def bidirectionalBfs(graph):
                     currSX = currPoint[0]
                     currSY = currPoint[1]
                     if(i == currSX and j == currSY):
-                        map.printVisited(visited, graph, 0)
-                        return path + currPoint[2][::-1]
+                        end = time()
+                        nodes = map.printVisited(visited, graph, 0)
+                        return path + currPoint[2][::-1], nodes, end - start
 
             # Only append points on the stack if the points are within the bounds
             # of the graph, the point is a 0, and the point has not been visited
@@ -196,6 +204,7 @@ def bidirectionalBfs(graph):
 # Generates a path from the source cell (0,0) to goal cell (dim - 1, dim - 1) using
 # A* where heuristicMethod can be euclideanH or manhattanH
 def aStar(graph, heuristicMethod):
+    start = time()
     dim = len(graph)
     source_cell = (0,0)
     goal_cell = (dim-1, dim-1)
@@ -234,8 +243,9 @@ def aStar(graph, heuristicMethod):
         # If we have reached the goal cell, we can return the path associated with
         # that cell.
         if x == dim - 1 and y == dim - 1:
-            map.printVisited(visited, graph, sys.maxsize)
-            return getPath(prevMap, goal_cell)
+            end = time()
+            nodes = map.printVisited(visited, graph, sys.maxsize)
+            return getPath(prevMap, goal_cell), nodes, end - start
         else:
             # Generate a list of all possible neighboring points from the current point (x,y)
             points = [(x, y-1), (x,y+1), (x-1, y), (x+1, y)]
