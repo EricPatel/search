@@ -4,6 +4,7 @@ import search
 def main():
     # Example graph generation with dimension and probability
 
+    number_of_runs = 50
     for i in range(10, 45, 5):
         avg_visited_euclidean = 0
         avg_visited_manhattan = 0
@@ -15,7 +16,7 @@ def main():
         avg_time_dfs = 0
         avg_time_bfs = 0
         avg_time_biBFS = 0
-        for j in range(10):
+        for j in range(number_of_runs):
             g = map.generateMap(150, i/100)
             path = search.aStar(g, search.manhattanH)
             while len(path) == 16:
@@ -42,32 +43,32 @@ def main():
             avg_visited_biBFS = avg_visited_biBFS + bi_visited
 
         print("A* Euclidean Numbers where P = " + str(i/100))
-        print("Avg Visited Nodes: " + str(avg_visited_euclidean/10))
-        print("Avg Time: " + str(avg_time_euclidean/10))
+        print("Avg Visited Nodes: " + str(avg_visited_euclidean/number_of_runs))
+        print("Avg Time: " + str(avg_time_euclidean/number_of_runs))
 
         print("")
 
         print("A* Manhattan Numbers where P = " + str(i/100))
-        print("Avg Visited Nodes: " + str(avg_visited_manhattan/10))
-        print("Avg Time: " + str(avg_time_manhattan/10))
+        print("Avg Visited Nodes: " + str(avg_visited_manhattan/number_of_runs))
+        print("Avg Time: " + str(avg_time_manhattan/number_of_runs))
 
         print("")
 
         print("DFS Numbers where P = " + str(i/100))
-        print("Avg Visited Nodes: " + str(avg_visited_dfs/10))
-        print("Avg Time: " + str(avg_time_dfs/10))
+        print("Avg Visited Nodes: " + str(avg_visited_dfs/number_of_runs))
+        print("Avg Time: " + str(avg_time_dfs/number_of_runs))
 
         print("")
 
         print("BFS Numbers where P = " + str(i/100))
-        print("Avg Visited Nodes: " + str(avg_visited_bfs/10))
-        print("Avg Time: " + str(avg_time_bfs/10))
+        print("Avg Visited Nodes: " + str(avg_visited_bfs/number_of_runs))
+        print("Avg Time: " + str(avg_time_bfs/number_of_runs))
 
         print("")
 
         print("BiDirectional BFS Numbers where P = " + str(i/100))
-        print("Avg Visited Nodes: " + str(avg_visited_biBFS/10))
-        print("Avg Time: " + str(avg_time_biBFS/10))
+        print("Avg Visited Nodes: " + str(avg_visited_biBFS/number_of_runs))
+        print("Avg Time: " + str(avg_time_biBFS/number_of_runs))
 
         print("")
 
