@@ -3,7 +3,8 @@ import search
 
 def main():
     # Example graph generation with dimension and probability
-
+    
+    dimension = 150
     number_of_runs = 50
     for i in range(10, 45, 5):
         avg_visited_euclidean = 0
@@ -16,16 +17,20 @@ def main():
         avg_time_dfs = 0
         avg_time_bfs = 0
         avg_time_biBFS = 0
+        avg_path_euclidean = 0
+        avg_path_manhattan = 0
+        avg_path_dfs = 0
+        avg_path_bfs = 0
+        avg_path_biBFS = 0
         for j in range(number_of_runs):
-            g = map.generateMap(150, i/100)
+            g = map.generateMap(dimension, i/100)
             path = search.aStar(g, search.manhattanH)
-            while len(path) == 16:
-                g = map.generateMap(150, i/100)
+            while path == "Failure: No Path":
+                g = map.generateMap(dimension, i/100)
                 path = search.aStar(g, search.manhattanH)
             m_visited = path[1]
             m_time = path[2]
             path = path[0]
-
             path2, e_visited, e_time = search.aStar(g, search.euclideanH)
             dfsPath, d_visited, d_time = search.dfs(g)
             bfsPath, b_visited, b_time = search.bfs(g)
@@ -41,34 +46,44 @@ def main():
             avg_visited_dfs = avg_visited_dfs + d_visited
             avg_visited_bfs = avg_visited_bfs + b_visited
             avg_visited_biBFS = avg_visited_biBFS + bi_visited
+            avg_path_euclidean = avg_path_euclidean + len(path2)
+            avg_path_manhattan = avg_path_manhattan + len(path)
+            avg_path_dfs = avg_path_dfs + len(dfsPath)
+            avg_path_bfs = avg_path_bfs + len(bfsPath)
+            avg_path_biBFS = avg_path_biBFS + len(biBFSpath)
 
         print("A* Euclidean Numbers where P = " + str(i/100))
         print("Avg Visited Nodes: " + str(avg_visited_euclidean/number_of_runs))
         print("Avg Time: " + str(avg_time_euclidean/number_of_runs))
+        print("Avg Path Length: " + str(avg_path_euclidean/number_of_runs))
 
         print("")
 
         print("A* Manhattan Numbers where P = " + str(i/100))
         print("Avg Visited Nodes: " + str(avg_visited_manhattan/number_of_runs))
         print("Avg Time: " + str(avg_time_manhattan/number_of_runs))
+        print("Avg Path Length: " + str(avg_path_manhattan/number_of_runs))
 
         print("")
 
         print("DFS Numbers where P = " + str(i/100))
         print("Avg Visited Nodes: " + str(avg_visited_dfs/number_of_runs))
         print("Avg Time: " + str(avg_time_dfs/number_of_runs))
+        print("Avg Path Length: " + str(avg_path_dfs/number_of_runs))
 
         print("")
 
         print("BFS Numbers where P = " + str(i/100))
         print("Avg Visited Nodes: " + str(avg_visited_bfs/number_of_runs))
         print("Avg Time: " + str(avg_time_bfs/number_of_runs))
+        print("Avg Path Length: " + str(avg_path_bfs/number_of_runs))
 
         print("")
 
         print("BiDirectional BFS Numbers where P = " + str(i/100))
         print("Avg Visited Nodes: " + str(avg_visited_biBFS/number_of_runs))
         print("Avg Time: " + str(avg_time_biBFS/number_of_runs))
+        print("Avg Path Length: " + str(avg_path_biBFS/number_of_runs))
 
         print("")
 
