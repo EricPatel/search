@@ -54,6 +54,45 @@ def dfs(graph):
     # If there is no path from source cell to goal cell than return the string below
     return "Failure: No Path"
 
+# Returns true when there is a path from the source cell (0,0) 
+# to any goal cell using Depth-First Search. 
+# Used by generateFireMap to see if there is a path from source 
+# to fire starting cell.
+def dfsForFireMap(graph, goal):
+    # Create a stack to use for DFS
+    stack = []
+    dim = len(graph)
+
+    # Create a visited array of same dimensions as the graph to ensure that DFS
+    # does not run forever.
+    visited = [[False for p in range(dim)] for k in range(dim)]
+
+    # The first element in the list is the x-value, second value is the 
+    # y-value.
+    visited[0][0] = True
+    stack.append([0,0])
+
+    while len(stack) != 0:
+        point = stack.pop()
+        x = point[0]
+        y = point[1]
+        
+        # If we have reached the goal cell, we can return True.
+        if x == goal[0] and y == goal[1]:
+            return True
+        else:
+            # Generate a list of all possible neighboring points from the current point (x,y)
+            points = [(x, y-1), (x,y+1), (x-1, y), (x+1, y)]
+            for (i,j) in points:
+                # Only append points on the stack if the points are within the bounds
+                # of the graph, the point is a 0, and the point has not been visited
+                if checkPoint(i, j, dim) and graph[i][j] == 0 and visited[i][j] == False:
+                    visited[i][j] = True
+                    stack.append([i, j])
+
+    # If there is no path from source cell to goal cell than return false
+    return False
+
 # Generates a path from the source cell (0,0) to goal cell (dim - 1, dim - 1) using 
 # Breadth-First Search. 
 def bfs(graph):
@@ -253,6 +292,71 @@ def aStar(graph, heuristicMethod):
     # If there is no path from source cell to goal cell than return the string below
     return "Failure: No Path"
 
+# Generates a path from any source cell to goal cell (dim - 1, dim - 1) using
+# A* where heuristicMethod can be euclideanH or manhattanH
+def aStarForStrategy2(source_cell, graph, heuristicMethod):
+    dim = len(graph)
+    goal_cell = (dim-1, dim-1)
+    
+    # Dictionary where the key is the cell and the value is the 
+    # cell that was previous. This is used to generate the actual path. 
+    prevMap = {}
+
+    # Create a visited array of same dimensions as the graph which will make sure
+    # that A* considers only cells that have not been visited which will reduce 
+    # the maximum fringe size and prevent cycles. Every position is initialized
+    # to the maximum integer to make sure the correct path is found. 
+    visited = [[sys.maxsize for p in range(dim)] for k in range(dim)]
+
+    # Create a min-heap/priority queue to use for A*
+    heap = []
+    heapq.heapify(heap)
+
+    # Start by appending the estimated distance from the source cell to the goal cell,
+    # the source cell, the previous cell, and the distance from the source.
+    # This heap will automatically use the first value in the tuple to sort the items
+    # because of the __lt__ method in our HeapNode class.
+    first_node = HeapNode(heuristicMethod(source_cell, goal_cell), source_cell, None, 0)
+    
+    prevMap[source_cell] = None
+    heapq.heappush(heap, first_node)
+    visited[source_cell[0]][source_cell[1]] = heuristicMethod(source_cell, goal_cell)
+
+    while len(heap) != 0:
+        node = heapq.heappop(heap)
+        point = node.cell
+        x = point[0]
+        y = point[1]
+        prevMap[point] = node.prev
+
+        # If we have reached the goal cell, we can return the path associated with
+        # that cell.
+        if x == dim - 1 and y == dim - 1:
+            return getPath(prevMap, goal_cell)
+        else:
+            # Generate a list of all possible neighboring points from the current point (x,y)
+            points = [(x, y-1), (x,y+1), (x-1, y), (x+1, y)]
+            for (i,j) in points:
+                # The distance from the source to the current point (i,j)
+                neighborToSource = node.distFromSource + 1
+
+                # The estimated distance from the neighbor to the goal cell
+                neighborPointHeuristic = heuristicMethod((i,j), goal_cell)
+
+                totalDistanceToGoal = neighborToSource + neighborPointHeuristic
+
+                # Only append points on the heap if the points are within the bounds
+                # of the graph, the point is a 0, and the point has a smaller total distance
+                # than visited[i][j].
+                if checkPoint(i, j, dim) and graph[i][j] == 0 and visited[i][j] > totalDistanceToGoal:
+                    visited[i][j] = totalDistanceToGoal
+                    prevMap[(i,j)] = point
+                    neighbor = HeapNode(totalDistanceToGoal, (i,j), point, neighborToSource)
+                    heapq.heappush(heap, neighbor)
+                    
+    # If there is no path from source cell to goal cell than return the string below
+    return "Failure: No Path"
+
 # Generates the euclidean distance between two points.
 # Will be passed as the heuristicMethod for the aStar function
 def euclideanH(p1, p2):
@@ -285,3 +389,4 @@ def checkPoint(x, y, dim):
     if x >= 0 and x < dim and y >= 0 and y < dim:
         return True
     return False
+

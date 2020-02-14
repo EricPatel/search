@@ -33,8 +33,9 @@ def printMap(graph):
 # Helper function that takes in a list of points as a path and a graph.
 # Prints out the graph with the points taken shown as "-"
 def printPath(path, graph):
-    if path == "Failure: No Path":
+    if type(path) == str:
         print("No Valid Path")
+        return
     p = set(path)
     for i in range(len(graph)):
         for j in range(len(graph)):
