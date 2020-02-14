@@ -120,13 +120,6 @@ def strategy2(graph, q):
 
     return path, graph
 
-"""g = generateFireMap(10, 0.1)
-map.printMap(g)
-print("")
-result = strategy2(g, 0.3)
-if result != "Failure: No Path":
-    map.printPath(result[0], result[1])
-else: 
-    print("Failure: No Path")"""
-
-
+# Needs to be done
+def strategy3(graph, q):
+    return None
