@@ -327,7 +327,6 @@ def aStarForStrategy2(source_cell, graph, heuristicMethod):
         point = node.cell
         x = point[0]
         y = point[1]
-        prevMap[point] = node.prev
 
         # If we have reached the goal cell, we can return the path associated with
         # that cell.
