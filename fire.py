@@ -73,7 +73,7 @@ def fireTimeStep(graph, q):
 # cells we are on, than we return failure, otherwise we return the path.
 def strategy1(graph, q):
     # Get shortest path on graph
-    path = search.aStar(graph, search.euclideanH)[0]
+    path = search.aStar(graph, search.manhattanH)[0]
 
     # Iterate over the path which represents moving over the shortest path
     for x in range(1, len(path)):
@@ -101,7 +101,7 @@ def strategy2(graph, q):
 
     # Recalculate shortest path until the final move is on the goal cell
     while point != (dim-1, dim-1):
-        result = search.aStarForStrategy2(point, graph, search.euclideanH)
+        result = search.aStarForStrategy2(point, graph, search.manhattanH)
         
         # If there is no path, than we immediately return failure
         if result == "Failure: No Path":
