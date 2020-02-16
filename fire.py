@@ -1,42 +1,6 @@
 import random
-import map
 from copy import deepcopy
 import search
-
-# Generates a map given a dimension and a probability that a cell is blocked
-# 1 --> Cell is Blocked, 0 --> Cell is Open , 2 --> Cell is on Fire
-# Additionally, adds a random starting point for the fire that has a path 
-# from source to fire cell.
-def generateFireMap(dim, p):
-    goal_cell = (dim-1, dim-1)
-    source_cell = (0,0)
-
-    # Generate a map with a dim and p for walls 
-    graph = map.generateMap(dim, p)
-
-    # If there is no path from the source cell to goal cell
-    # discard this map and generate a new one. 
-    while search.dfsForFireMap(graph, goal_cell) == False:
-        graph = map.generateMap(dim, p)
-
-
-    # Generate a random coordinate between 0 and dim - 1
-    fireX = random.randint(0, dim-1)
-    fireY = random.randint(0, dim-1)
-    fire_cell = (fireX, fireY)
-
-    # Generate new fire cell starting points if fire starting cell:
-    #   - is source cell
-    #   - is goal cell
-    #   - is a wall (1 in the graph means a wall)
-    #   - has no path to source cell
-    while fire_cell == source_cell or fire_cell == goal_cell or graph[fireX][fireY] == 1 or search.dfsForFireMap(graph, fire_cell) == False:
-        fireX = random.randint(0, dim-1)
-        fireY = random.randint(0, dim-1)
-        fire_cell = (fireX, fireY)
-
-    graph[fireX][fireY] = 2
-    return graph
 
 # Spreads the fire on the maze by one time step.
 def fireTimeStep(graph, q):
