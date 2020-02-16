@@ -1,12 +1,17 @@
 import map
 from search import euclideanH, manhattanH, aStar, bfs, bidirectionalBfs, dfs
 import fire
+import GenerateHardMaze
 
 def main():
     # Example graph generation with dimension and probability
     g = map.generateMap(150, 0.2)
-    path = aStar(g, manhattanH)
+    manhattanPath = aStar(g, manhattanH)
+    euclideanPath = aStar(g, euclideanH)
     bfsPath = bfs(g)
+    dfsPath = dfs(g)
+    bidirectionalBFSPath = bidirectionalBfs(g) 
+    
 
     map.printPath(path, g)
     print(" ")
@@ -15,8 +20,26 @@ def main():
     print(len(path), len(bfsPath))
 
     # Example for visualizing path for graph g
-    map.visualize(path, g)
+    map.visualize(manhattanPath, g)
+    map.visualize(euclideanPath, g)
     map.visualize(bfsPath, g)
+    map.visualize(dfsPath, g)
+    map.visualize(bidirectionalBFSPath,g)
+
+    #part 3 calls with visualization
+    path, graph, og_path, og_graph = GenerateHardMaze.generateHardMazePathLength()
+    map.visualize(og_path, og_graph)
+    map.visualize(path, graph)
+
+    path2, graph2, og_path2, og_graph2 = GenerateHardMaze.generateHardMazeFringeSize()
+    map.visualize(og_path2, og_graph2)
+    map.visualize(path2, graph2)
+
+    path3, graph3, og_path3, og_graph3 = GenerateHardMaze.generateHardMazeNumberOfNodes()
+    map.visualize(og_path3, og_graph3)
+    map.visualize(path3, graph3)
+    
+
 
     # Example fire graph generation with dimension and probability
     fireG = map.generateFireMap(100, 0.3)

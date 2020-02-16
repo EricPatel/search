@@ -173,7 +173,10 @@ def dfs(graph):
 def generateHardMazePathLength():
     #counter for the len(path) over iterations
     max = 0
-
+    original_path = None
+    original_graph = None
+    global_maze = None
+    final_path = None
     #the termination condition to stop random restarting is that the path should be longer than 80
     while(max < 80):
 
@@ -187,6 +190,7 @@ def generateHardMazePathLength():
         #length of the path before making the map harder
         path, nodes_visited, max_fringe_size = aStar(g, euclideanH)
         max_difficulty = len(path)
+        
         #print("First Maze Length: ")
         #print(max_difficulty)
         
@@ -202,9 +206,13 @@ def generateHardMazePathLength():
         #used to save largest local max 
         if(max_difficulty2 > max):
             max = max_difficulty2
+            global_maze = hard_graph
+            final_path = path2
+            original_path = path
+            original_graph = g
            
     #display final result
-    print(max)
+    return final_path, global_maze, original_path, original_graph
     
 #helper method to generate the local hard maze for a given graph 
 # pass in the original graph and the original difficulty  
@@ -247,7 +255,10 @@ def generateLocalHardMaze(og_graph, difficulty):
 def generateHardMazeFringeSize():
     #counter for the len(path) over iterations
     max = 0
-
+    original_path = None
+    original_graph = None
+    global_maze = None
+    final_path = None
     #the termination condition to stop random restarting is that the fringe size should be longer than 80
     while(max < 80):
 
@@ -270,9 +281,13 @@ def generateHardMazeFringeSize():
         #used to save largest local max 
         if(max_difficulty2 > max):
             max = max_difficulty2
+            global_maze = new_hard_maze
+            final_path = path2
+            original_path = path
+            original_graph = g
 
     #print out max fringe size 
-    print(max)
+    return final_path, global_maze, original_path, original_graph
 
 
 #helper method to generate the local hard graph based on a given graph
@@ -314,7 +329,10 @@ def generateLocalHardMazeDFSFringe(og_graph, difficulty):
 def generateHardMazeNumberOfNodes():
     #counter for the len(path) over iterations
     max = 0
-
+    original_path = None
+    original_graph = None
+    global_maze = None
+    final_path = None
     #the termination condition to stop random restarting is that the nodes visited should be longer than 280 
     while(max < 280):
 
@@ -340,9 +358,13 @@ def generateHardMazeNumberOfNodes():
         #used to save largest local max 
         if(max_difficulty2 > max):
             max = max_difficulty2
+            global_maze = hard_graph
+            final_path = path2
+            original_path = path
+            original_graph = g
 
     #print out max fringe size 
-    print(max) 
+    return final_path, global_maze, original_path, original_graph 
 
 #helper method that generates a hard maze based on the graph given 
 #inputs are a graph and the original difficulty
@@ -374,11 +396,3 @@ def generateLocalHardMazeManhattan(og_graph, difficulty):
                     og_graph[i][j] = old_value
                     
     return og_graph
-
-generateHardMazePathLength()
-generateHardMazeFringeSize()
-generateHardMazeNumberOfNodes()
-
-
-
-    
