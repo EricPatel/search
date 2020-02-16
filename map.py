@@ -1,4 +1,10 @@
 import random
+import matplotlib as mpl
+from matplotlib import pyplot
+import numpy as np
+import search
+import fire
+from copy import deepcopy
 
 # Generates a map given a dimension and a probability that a cell is blocked
 # 1 --> Cell is Blocked, 0 --> Cell is Open
@@ -51,3 +57,27 @@ def printVisited(visited, graph, nullValue):
             if visited[i][j] != nullValue:
                 count = count + 1
     return count
+
+# Helper function that takes in a list of points as a path and a graph.
+# Shows graph in image form where: White --> Open Cell, Black --> Wall, 
+# Red --> Path Taken, Green --> Visited Node
+def visualizeWithNodesVisited(path, graph, visited, nullValue):
+    pyplot.rcParams["image.composite_image"] = False
+    if type(path) == str:
+        print("No Valid Path")
+        return
+
+    copyOfGraph = deepcopy(graph)
+    p = set(path)
+
+    for i in range(len(copyOfGraph)):
+        for j in range(len(copyOfGraph)):
+            if (i,j) in p:
+                copyOfGraph[i][j] = 2
+            elif visited[i][j] != nullValue:
+                copyOfGraph[i][j] = 3
+
+    cmap = mpl.colors.ListedColormap(['white','black', 'red', 'green'])
+    pyplot.figure()
+    img = pyplot.imshow(copyOfGraph, cmap = cmap)
+    pyplot.show()
