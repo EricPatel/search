@@ -11,13 +11,6 @@ def main():
     bfsPath = bfs(g)
     dfsPath = dfs(g)
     bidirectionalBFSPath = bidirectionalBfs(g) 
-    
-
-    map.printPath(path, g)
-    print(" ")
-    map.printPath(bfsPath, g)
-    print(" ")
-    print(len(path), len(bfsPath))
 
     # Example for visualizing path for graph g
     map.visualize(manhattanPath, g)
@@ -26,7 +19,7 @@ def main():
     map.visualize(dfsPath, g)
     map.visualize(bidirectionalBFSPath,g)
 
-    #part 3 calls with visualization
+    # Part 3 calls with visualization
     path, graph, og_path, og_graph = GenerateHardMaze.generateHardMazePathLength()
     map.visualize(og_path, og_graph)
     map.visualize(path, graph)
@@ -38,8 +31,6 @@ def main():
     path3, graph3, og_path3, og_graph3 = GenerateHardMaze.generateHardMazeNumberOfNodes()
     map.visualize(og_path3, og_graph3)
     map.visualize(path3, graph3)
-    
-
 
     # Example fire graph generation with dimension and probability
     fireG = map.generateFireMap(100, 0.3)
