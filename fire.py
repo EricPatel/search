@@ -238,12 +238,13 @@ def aStarNew(source_cell, graph, heuristicMethod):
     # If there is no path from source cell to goal cell than return the string below
     return "Failure: No Path"
 
-g = map.generateFireMap(10, 0.1)
+g = map.generateFireMap(20, 0.1)
 result = strategy3(g, 0.2)
 if result != "Failure: No Path":
     path = result[0]
+    print(path)
     g = result[1]
-    map.printPath(path, g)
+    map.visualizeFireMap(path, g)
 
 #map.printMap(g)
 #x = distanceToFire(g, (1,0))
