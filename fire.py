@@ -122,7 +122,7 @@ def strategy3(graph, q):
             return "Failure: No Path"
 
         graph = fireTimeStep(graph, q)
-        map.visualizeFireMap([], g)
+        map.printMap(g)
         path.append(point)
 
     return path, graph
@@ -243,5 +243,5 @@ result = strategy3(g, 0.2)
 if result != "Failure: No Path":
     path = result[0]
     g = result[1]
-    map.visualizeFireMap(path, g)
+    map.printMap(g)
 
