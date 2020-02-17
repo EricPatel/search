@@ -122,7 +122,7 @@ def distanceToFire(graph, curr):
                 # Only append points on the stack if the points are within the bounds
                 # of the graph, the point is a 0, and the point has not been visited
                 if search.checkPoint(i, j, dim) and graph[i][j] == 0 and visited[i][j] == False:
-                    queue.append(([i, j], distance + 1))
+                    queue.append(((i, j), distance + 1))
                     visited[i][j] = True
 
     # If there is no path from source cell to goal cell than return the string below
