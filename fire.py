@@ -1,17 +1,8 @@
 import random
-from copy import deepcopy
 import search
-from collections import deque
-import random
-import matplotlib as mpl
-from matplotlib import pyplot
-import numpy as np
-import search
-import fire
 from copy import deepcopy
 import sys
 import heapq
-import math
 from collections import deque
 from HeapNode import HeapNode
 import map
@@ -108,7 +99,7 @@ def strategy3(graph, q):
 
     # Recalculate shortest path until the final move is on the goal cell
     while point != (dim-1, dim-1):
-        result = aStarNew(point,graph, heu)
+        result = aStarFire(point,graph, fireH)
 
         # If there is no path, than we immediately return failure
         if result == "Failure: No Path":
@@ -240,10 +231,3 @@ def aStarFire(source_cell, graph, heuristicMethod):
     # If there is no path from source cell to goal cell than return the string below
     return "Failure: No Path"
 
-g = map.generateFireMap(20, 0.1)
-result = strategy3(g, 0.2)
-if result != "Failure: No Path":
-    path = result[0]
-    print(path)
-    g = result[1]
-    map.visualizeFireMap(path, g)
