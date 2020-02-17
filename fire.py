@@ -1,6 +1,7 @@
 import random
 from copy import deepcopy
 import search
+from collections import deque
 
 # Spreads the fire on the maze by one time step.
 def fireTimeStep(graph, q):
@@ -96,9 +97,8 @@ def distanceToFire(graph, curr):
     # will minimize the fringe size
     visited = [[False for p in range(dim)] for k in range(dim)]
 
-
     # Enqueue the starting position and mark it as visited
-    queue.append(curr, 0)
+    queue.append((curr, 0))
     visited[curr[0]][curr[1]] = True
 
     # Keep looping while there are elements in the queue
@@ -109,22 +109,20 @@ def distanceToFire(graph, curr):
         y = point[1]
         distance = point[2]
 
-        # Generate a list of all possible neighboring points from the current point (x,y)
-        neighbors = [(x, y-1), (x,y+1), (x-1, y), (x+1, y)]
-        for neighbor in neighbors:
-            i = neighbor[0]
-            j = neighbor[1]
+        if graph[x][y] == 2:
+            return distance
+        else:
+            # Generate a list of all possible neighboring points from the current point (x,y)
+            neighbors = [(x, y-1), (x,y+1), (x-1, y), (x+1, y)]
+            for neighbor in neighbors:
+                i = neighbor[0]
+                j = neighbor[1]
 
-            # If we have reached the goal cell, we can return the path associated with
-            # that cell.
-            if graph[i][j] = 2:
-                return count
-
-            # Only append points on the stack if the points are within the bounds
-            # of the graph, the point is a 0, and the point has not been visited
-            if checkPoint(i, j, dim) and graph[i][j] == 0 and visited[i][j] == False:
-                queue.append([i, j], distance + 1)
-                visited[i][j] = True
+                # Only append points on the stack if the points are within the bounds
+                # of the graph, the point is a 0, and the point has not been visited
+                if search.checkPoint(i, j, dim) and graph[i][j] == 0 and visited[i][j] == False:
+                    queue.append(([i, j], distance + 1))
+                    visited[i][j] = True
 
     # If there is no path from source cell to goal cell than return the string below
     return "Failure: No Path"
