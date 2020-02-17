@@ -105,9 +105,10 @@ def distanceToFire(graph, curr):
     while len(queue) != 0:
         # Get the first item on the queue
         point = queue.popleft()
-        x = point[0]
-        y = point[1]
-        distance = point[2]
+        node = point[0]
+        x = node[0]
+        y = node[1]
+        distance = point[1]
 
         if graph[x][y] == 2:
             return distance
