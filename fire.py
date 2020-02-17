@@ -107,7 +107,7 @@ def strategy3(graph, q):
 
     # Recalculate shortest path until the final move is on the goal cell
     while point != (dim-1, dim-1):
-        result = aStarNew(graph, heu)
+        result = aStarNew(point,graph, heu)
 
         # If there is no path, than we immediately return failure
         if result == "Failure: No Path":
@@ -122,7 +122,8 @@ def strategy3(graph, q):
             return "Failure: No Path"
 
         graph = fireTimeStep(graph, q)
-        map.printMap(g)
+        #map.printMap(g)
+        #print("")
         path.append(point)
 
     return path, graph
@@ -173,9 +174,8 @@ def heu(p1, p2, graph):
 
 # Generates a path from the source cell (0,0) to goal cell (dim - 1, dim - 1) using
 # A* where heuristicMethod can be euclideanH or manhattanH
-def aStarNew(graph, heuristicMethod):
-    dim = len(graph)
-    source_cell = (0,0)
+def aStarNew(source_cell, graph, heuristicMethod):
+    dim = len(graph)    
     goal_cell = (dim-1, dim-1)
     
     # Dictionary where the key is the cell and the value is the 
@@ -198,9 +198,9 @@ def aStarNew(graph, heuristicMethod):
     # because of the __lt__ method in our HeapNode class.
     first_node = HeapNode(heuristicMethod(source_cell, goal_cell, graph), source_cell, None, 0)
     
-    prevMap[(0,0)] = None
+    prevMap[source_cell] = None
     heapq.heappush(heap, first_node)
-    visited[0][0] = heuristicMethod(source_cell, goal_cell, graph)
+    visited[source_cell[0]][source_cell[1]] = heuristicMethod(source_cell, goal_cell, graph)
 
     while len(heap) != 0:
         node = heapq.heappop(heap)
@@ -244,4 +244,8 @@ if result != "Failure: No Path":
     path = result[0]
     g = result[1]
     map.printMap(g)
+
+#map.printMap(g)
+#x = distanceToFire(g, (1,0))
+
 
