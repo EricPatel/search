@@ -9,7 +9,7 @@ import numpy as np
 import search
 import fire
 from copy import deepcopy
-import sys 
+import sys
 import heapq
 import math
 from collections import deque
@@ -98,7 +98,8 @@ def strategy2(graph, q):
 
     return path, graph
 
-# Needs to be done
+#In this strategy we try to consider the fires future states will still trying to reach the goal cell.
+#We try to stay away from the fire and spots it will spread to in the future while trying to reach the goal safely
 def strategy3(graph, q):
     path = []
     point = (0,0)
@@ -122,12 +123,11 @@ def strategy3(graph, q):
             return "Failure: No Path"
 
         graph = fireTimeStep(graph, q)
-        #map.printMap(g)
-        #print("")
         path.append(point)
 
     return path, graph
 
+#calculates the distance from the current node to the closest fire using a modified bfs
 def distanceToFire(graph, curr):
     dim = len(graph)
     queue = deque()
@@ -136,7 +136,7 @@ def distanceToFire(graph, curr):
     # will minimize the fringe size
     visited = [[False for p in range(dim)] for k in range(dim)]
 
-    # Enqueue the starting position and mark it as visited
+    # Enqueue the starting position and mark it as visited and set the distance to 0
     queue.append((curr, 0))
     visited[curr[0]][curr[1]] = True
 
@@ -159,7 +159,7 @@ def distanceToFire(graph, curr):
                 j = neighbor[1]
 
                 # Only append points on the stack if the points are within the bounds
-                # of the graph, the point is a 0, and the point has not been visited
+                # of the graph, the point is not a wall, and the point has not been visited
                 if search.checkPoint(i, j, dim) and graph[i][j] != 1 and visited[i][j] == False:
                     queue.append(((i, j), distance + 1))
                     visited[i][j] = True
@@ -167,25 +167,27 @@ def distanceToFire(graph, curr):
     # If there is no path from source cell to goal cell than return the string below
     return "Failure: No Path"
 
-def heu(p1, p2, graph):
+#heuristic method that tries to maximize distance from fire while minimizing distance from the goal.
+#this works because the underlining
+def fireH(p1, p2, graph):
     distToFire = distanceToFire(graph, p1)
     manDist = search.manhattanH(p1, p2)
     return manDist - distToFire
 
-# Generates a path from the source cell (0,0) to goal cell (dim - 1, dim - 1) using
-# A* where heuristicMethod can be euclideanH or manhattanH
-def aStarNew(source_cell, graph, heuristicMethod):
-    dim = len(graph)    
+# Generates a path from the source cell to goal cell (dim - 1, dim - 1) using
+# A* where heuristicMethod is our own custom heurstic
+def aStarFire(source_cell, graph, heuristicMethod):
+    dim = len(graph)
     goal_cell = (dim-1, dim-1)
-    
-    # Dictionary where the key is the cell and the value is the 
-    # cell that was previous. This is used to generate the actual path. 
+
+    # Dictionary where the key is the cell and the value is the
+    # cell that was previous. This is used to generate the actual path.
     prevMap = {}
 
     # Create a visited array of same dimensions as the graph which will make sure
-    # that A* considers only cells that have not been visited which will reduce 
+    # that A* considers only cells that have not been visited which will reduce
     # the maximum fringe size and prevent cycles. Every position is initialized
-    # to the maximum integer to make sure the correct path is found. 
+    # to the maximum integer to make sure the correct path is found.
     visited = [[sys.maxsize for p in range(dim)] for k in range(dim)]
 
     # Create a min-heap/priority queue to use for A*
@@ -197,7 +199,7 @@ def aStarNew(source_cell, graph, heuristicMethod):
     # This heap will automatically use the first value in the tuple to sort the items
     # because of the __lt__ method in our HeapNode class.
     first_node = HeapNode(heuristicMethod(source_cell, goal_cell, graph), source_cell, None, 0)
-    
+
     prevMap[source_cell] = None
     heapq.heappush(heap, first_node)
     visited[source_cell[0]][source_cell[1]] = heuristicMethod(source_cell, goal_cell, graph)
@@ -234,7 +236,7 @@ def aStarNew(source_cell, graph, heuristicMethod):
                         prevMap[(i,j)] = point
                         neighbor = HeapNode(totalDistanceToGoal, (i,j), point, neighborToSource)
                         heapq.heappush(heap, neighbor)
-                    
+
     # If there is no path from source cell to goal cell than return the string below
     return "Failure: No Path"
 
@@ -245,8 +247,3 @@ if result != "Failure: No Path":
     print(path)
     g = result[1]
     map.visualizeFireMap(path, g)
-
-#map.printMap(g)
-#x = distanceToFire(g, (1,0))
-
-
