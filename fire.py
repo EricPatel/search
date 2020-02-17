@@ -243,7 +243,7 @@ result = strategy3(g, 0.2)
 if result != "Failure: No Path":
     path = result[0]
     g = result[1]
-    map.printMap(g)
+    map.printPath(path, g)
 
 #map.printMap(g)
 #x = distanceToFire(g, (1,0))
